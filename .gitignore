@@ -1,0 +1,12 @@
+# Dependencies
+client/node_modules
+server/node_modules
+
+# Environment
+server/.env
+
+# Build output
+client/dist
+
+# OS
+.DS_Store

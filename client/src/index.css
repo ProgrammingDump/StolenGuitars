@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&display=swap');
+@import 'tailwindcss';
+:root {
+	--primary-color: #7008e7;
+	--secondary-color: #2a6fc9;
+	--background-color: black;
+	--text-color: #ffffff;
+}
+
+body {
+	background-color: var(
+		--background-color
+	);
+	color: var(--text-color);
+	font-family: 'Jost', sans-serif;
+	margin: 0;
+	padding: 0;
+}
