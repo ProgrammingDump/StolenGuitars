@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const schema = z
     .object({
@@ -15,12 +16,24 @@ const schema = z
         path: ["confirmPassword"],
     });
 
+function toastError(error, message = "Something went wrong") {
+    if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+    } else {
+        toast.error(message);
+    }
+}
+
+function showValidationErrors(errors) {
+    Object.values(errors).forEach((error) => {
+        if (error?.message) {
+            toast.error(error.message);
+        }
+    });
+}
+
 function SignUp() {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
+    const { register, handleSubmit } = useForm({
         resolver: zodResolver(schema),
     });
 
@@ -36,19 +49,25 @@ function SignUp() {
                 { withCredentials: true }
             );
 
+            toast.success("Signed up successfully");
             console.log("Signed up successfully", res.data);
         } catch (err) {
+            toastError(err, "Sign up failed");
             console.error(err.response?.data);
         }
     };
 
     return (
         <div className="w-max min-h-screen flex items-center mx-auto">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form
+                onSubmit={handleSubmit(
+                    onSubmit,
+                    (errors) => showValidationErrors(errors)
+                )}
+            >
                 <div className="flex flex-col gap-4">
-
                     <div className="input-window">
-                        <div className="border-b-2 mb-1 w-52">
+                        <div className="border-b mb-1 w-52">
                             <input
                                 type="text"
                                 placeholder="Username"
@@ -56,15 +75,10 @@ function SignUp() {
                                 {...register("username")}
                             />
                         </div>
-                        {errors.username && (
-                            <p className="text-red-500 text-sm">
-                                {errors.username.message}
-                            </p>
-                        )}
                     </div>
 
                     <div className="input-window">
-                        <div className="border-b-2 mb-1 w-52">
+                        <div className="border-b mb-1 w-52">
                             <input
                                 type="email"
                                 placeholder="Email"
@@ -72,15 +86,10 @@ function SignUp() {
                                 {...register("email")}
                             />
                         </div>
-                        {errors.email && (
-                            <p className="text-red-500 text-sm">
-                                {errors.email.message}
-                            </p>
-                        )}
                     </div>
 
                     <div className="input-window">
-                        <div className="border-b-2 mb-1 w-52">
+                        <div className="border-b mb-1 w-52">
                             <input
                                 type="password"
                                 placeholder="Password"
@@ -88,15 +97,10 @@ function SignUp() {
                                 {...register("password")}
                             />
                         </div>
-                        {errors.password && (
-                            <p className="text-red-500 text-sm">
-                                {errors.password.message}
-                            </p>
-                        )}
                     </div>
 
                     <div className="input-window">
-                        <div className="border-b-2 mb-1 w-52">
+                        <div className="border-b mb-1 w-52">
                             <input
                                 type="password"
                                 placeholder="Confirm Password"
@@ -104,11 +108,6 @@ function SignUp() {
                                 {...register("confirmPassword")}
                             />
                         </div>
-                        {errors.confirmPassword && (
-                            <p className="text-red-500 text-sm">
-                                {errors.confirmPassword.message}
-                            </p>
-                        )}
                     </div>
 
                     <button
@@ -117,7 +116,6 @@ function SignUp() {
                     >
                         Sign Up
                     </button>
-
                 </div>
             </form>
         </div>

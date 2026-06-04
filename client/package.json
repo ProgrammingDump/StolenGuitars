@@ -12,6 +12,8 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-store": "^0.11.0",
+    "@tanstack/store": "^0.11.0",
     "axios": "^1.16.1",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

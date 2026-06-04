@@ -1,7 +1,10 @@
-import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useForm } from "react-hook-form";
+import { setUser } from "../store/userStore";
+import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z.object({
     email: z.string().email("Invalid email format"),
@@ -17,6 +20,8 @@ function Login() {
         resolver: zodResolver(schema),
     });
 
+    const navigate = useNavigate();
+
     const onSubmit = async (data) => {
         try {
             const res = await axios.post(
@@ -25,12 +30,15 @@ function Login() {
                 { withCredentials: true }
             );
 
+            setUser(res.data.user);
 
             toast.success("Logged in successfully")
             console.log(res.data)
 
         } catch (err) {
             toast.error(err.response?.data?.message || "Login failed");
+        } finally {
+            navigate("/");
         }
     };
 
@@ -46,7 +54,7 @@ function Login() {
                 <div className="flex flex-col gap-4">
 
                     <div className="input-window mb-2">
-                        <div className="border-b-2 mb-5 w-52">
+                        <div className="border-b mb-5 w-52">
                             <input
                                 type="email"
                                 placeholder="Email"
@@ -63,7 +71,7 @@ function Login() {
                     </div>
 
                     <div className="input-window mb-5">
-                        <div className="border-b-2 mb-1 w-52">
+                        <div className="border-b mb-1 w-52">
                             <input
                                 type="password"
                                 placeholder="Password"
