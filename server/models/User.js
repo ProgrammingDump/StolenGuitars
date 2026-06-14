@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 		unique: true,
+		match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores (no spaces)'],
+		minlength: [3, 'Username must be at least 3 characters'],
 	},
 	email: {
 		type: String,
@@ -14,6 +16,16 @@ const userSchema = new mongoose.Schema({
 	password: {
 		type: String,
 		required: true,
+	},
+	isVerified: {
+		type: Boolean,
+		default: false,
+	},
+	verificationToken: {
+		type: String,
+	},
+	verificationTokenExpires: {
+		type: Date,
 	},
 	timestamps: {
 		type: Date,

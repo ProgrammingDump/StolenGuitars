@@ -1,9 +1,10 @@
+import { useEffect } from "react";
 import { z } from "zod";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { setUser } from "../store/userStore";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z.object({
@@ -21,6 +22,16 @@ function Login() {
     });
 
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const verified = searchParams.get("verified");
+
+    useEffect(() => {
+        if (verified === "true") {
+            toast.success("Email verified successfully! You can now log in.");
+        } else if (verified === "false") {
+            toast.error("Email verification failed or link expired.");
+        }
+    }, [verified]);
 
     const onSubmit = async (data) => {
         try {
@@ -34,11 +45,9 @@ function Login() {
 
             toast.success("Logged in successfully")
             console.log(res.data)
-
+            navigate("/");
         } catch (err) {
             toast.error(err.response?.data?.message || "Login failed");
-        } finally {
-            navigate("/");
         }
     };
 
@@ -75,6 +84,7 @@ function Login() {
                             <input
                                 type="password"
                                 placeholder="Password"
+                                autoComplete="off"
                                 className="focus:outline-none"
                                 {...register("password")}
                             />
@@ -89,10 +99,17 @@ function Login() {
 
                     <button
                         type="submit"
-                        className="bg-violet-500/15 text-white p-2 rounded-md"
+                        className="bg-violet-500/15 text-white p-2 rounded-md cursor-pointer"
                     >
                         Login
                     </button>
+
+                    <Link
+                        to="/signup"
+                        className="text-white text-center no-underline hover:opacity-80 mt-1 cursor-pointer"
+                    >
+                        (need an account? register here)
+                    </Link>
 
                 </div>
             </form>

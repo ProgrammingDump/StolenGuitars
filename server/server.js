@@ -2,11 +2,13 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const path = require('path')
 require('dotenv').config()
 
 const app = express()
 
 const authRoutes = require('./routes/authRoutes')
+const guitarRoutes = require('./routes/guitarRoutes')
 
 // CORS
 app.use(
@@ -29,9 +31,11 @@ app.use(
 // middleware
 app.use(express.json())
 app.use(cookieParser())
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')))
 
 // routes
 app.use('/api/auth', authRoutes)
+app.use('/api/guitars', guitarRoutes)
 
 // DB
 mongoose

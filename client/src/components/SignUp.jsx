@@ -3,10 +3,16 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const schema = z
     .object({
-        username: z.string().min(3, "Username must be at least 3 characters"),
+        username: z
+            .string()
+            .min(3, "Username must be at least 3 characters")
+            .regex(/^\S+$/, "Username must be a single word without spaces")
+            .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
         email: z.string().email("Invalid email format"),
         password: z.string().min(6, "Password must be at least 6 characters"),
         confirmPassword: z.string(),
@@ -36,6 +42,7 @@ function SignUp() {
     const { register, handleSubmit } = useForm({
         resolver: zodResolver(schema),
     });
+    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         try {
@@ -49,8 +56,9 @@ function SignUp() {
                 { withCredentials: true }
             );
 
-            toast.success("Signed up successfully");
+            toast.success(res.data?.message || "Signed up successfully! Check your email to verify.");
             console.log("Signed up successfully", res.data);
+            navigate("/login");
         } catch (err) {
             toastError(err, "Sign up failed");
             console.error(err.response?.data);
@@ -71,6 +79,7 @@ function SignUp() {
                             <input
                                 type="text"
                                 placeholder="Username"
+                                autoComplete="off"
                                 className="focus:outline-none"
                                 {...register("username")}
                             />
@@ -93,6 +102,7 @@ function SignUp() {
                             <input
                                 type="password"
                                 placeholder="Password"
+                                autoComplete="new-password"
                                 className="focus:outline-none"
                                 {...register("password")}
                             />
@@ -104,6 +114,7 @@ function SignUp() {
                             <input
                                 type="password"
                                 placeholder="Confirm Password"
+                                autoComplete="new-password"
                                 className="focus:outline-none"
                                 {...register("confirmPassword")}
                             />
@@ -116,6 +127,13 @@ function SignUp() {
                     >
                         Sign Up
                     </button>
+
+                    <Link
+                        to="/login"
+                        className="text-white text-center no-underline hover:opacity-80 mt-1 cursor-pointer"
+                    >
+                        (have an account? log in here)
+                    </Link>
                 </div>
             </form>
         </div>
