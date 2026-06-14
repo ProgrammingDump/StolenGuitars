@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Logout } from "./Logout";
 import { Link } from "react-router-dom";
 import { IoSearchSharp } from "react-icons/io5";
@@ -6,9 +6,7 @@ import { useStore } from "@tanstack/react-store";
 import { userStore } from "../store/userStore";
 import { setLoading } from "../store/userStore";
 
-export const Header = () => {
-  const [isSearchOpen] = useState(false);
-
+export const Header = ({ onLoginClick, onSignUpClick }) => {
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -23,11 +21,9 @@ export const Header = () => {
     return user.username.split(" ")[0];
   };
 
-  console.log("Header render", { isLoggedIn, user, loading });
-
   return (
-    <div className="flex p-4 justify-between max-h-14 items-center bg-linear-to-b from-violet-500/60 via-violet-500/40 to-black">
-      <div className="text-2xl font-bold">
+    <div className="flex py-2 px-4 justify-between max-h-14 items-center bg-linear-to-b from-violet-500/60 via-violet-500/40 to-black">
+      <div className="text-xl font-bold">
         <Link to="/">stolen guitars</Link>
       </div>
 
@@ -49,17 +45,19 @@ export const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/login">
-                <button className="px-3 py-1 rounded-md text-white hover:opacity-80">
-                  log in
-                </button>
-              </Link>
+              <button 
+                onClick={onLoginClick}
+                className="px-3 py-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                log in
+              </button>
 
-              <Link to="/signup">
-                <button className="px-3 py-1 rounded-md text-white hover:opacity-80">
-                  sign up
-                </button>
-              </Link>
+              <button 
+                onClick={onSignUpClick}
+                className="px-3 py-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                sign up
+              </button>
             </>
           )}
         </div>
