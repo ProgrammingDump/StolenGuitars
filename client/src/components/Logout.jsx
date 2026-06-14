@@ -1,8 +1,13 @@
 import axios from "axios";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { clearUser } from "../store/userStore";
 
 export const Logout = () => {
-    const handleLogout = async () => {
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const handleLogout = async () => {
         try {
             await axios.post(
                 "http://localhost:5050/api/auth/logout",
@@ -10,20 +15,20 @@ export const Logout = () => {
                 { withCredentials: true }
             );
             clearUser();
-            window.location.href = "/";
+            navigate("/");
         } catch (err) {
             console.error("Logout failed:", err);
             clearUser();
-            window.location.href = "/";
+            navigate("/");
         }
-    };
+        };
+
+        handleLogout();
+    }, [navigate]);
 
     return (
-        <button
-            onClick={handleLogout}
-            className="p-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
-        >
-            log out
-        </button>
+        <div className="min-h-screen flex items-center justify-center text-white">
+            Logging out...
+        </div>
     );
 };

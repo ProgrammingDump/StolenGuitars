@@ -1,18 +1,15 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 import axios from "axios";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
-import { Routes, Route, useSearchParams } from "react-router-dom";
 import { Home } from "./components/Home";
-import { LoginModal } from "./components/LoginModal";
-import { SignUpModal } from "./components/SignUpModal";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
+import { Logout } from "./components/Logout";
 import { setUser, clearUser, setLoading } from "./store/userStore";
 
 function App() {
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [searchParams] = useSearchParams();
-
   // Check if user is already logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
@@ -26,7 +23,7 @@ function App() {
         } else {
           clearUser();
         }
-      } catch (err) {
+      } catch {
         clearUser();
       } finally {
         setLoading(false);
@@ -36,41 +33,20 @@ function App() {
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    const verified = searchParams.get("verified");
-    if (verified === "true") {
-      setIsLoginOpen(true);
-    }
-  }, [searchParams]);
-
   return (
     <div className="flex flex-col min-h-screen">
-      <Header 
-        onLoginClick={() => setIsLoginOpen(true)}
-        onSignUpClick={() => setIsSignUpOpen(true)}
-      />
+      <Header />
 
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/logout" element={<Logout />} />
         </Routes>
       </main>
 
       <Footer />
-
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)}
-      />
-
-      <SignUpModal 
-        isOpen={isSignUpOpen} 
-        onClose={() => setIsSignUpOpen(false)}
-        onSwitchToLogin={() => {
-          setIsSignUpOpen(false);
-          setIsLoginOpen(true);
-        }}
-      />
     </div>
   );
 }

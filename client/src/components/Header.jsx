@@ -1,12 +1,11 @@
 import { useEffect } from "react";
-import { Logout } from "./Logout";
 import { Link } from "react-router-dom";
 import { IoSearchSharp } from "react-icons/io5";
 import { useStore } from "@tanstack/react-store";
 import { userStore } from "../store/userStore";
 import { setLoading } from "../store/userStore";
 
-export const Header = ({ onLoginClick, onSignUpClick }) => {
+export const Header = () => {
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -41,23 +40,28 @@ export const Header = ({ onLoginClick, onSignUpClick }) => {
                 {getUsername()}
               </span>
 
-              <Logout />
+              <Link
+                to="/logout"
+                className="p-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
+              >
+                log out
+              </Link>
             </>
           ) : (
             <>
-              <button 
-                onClick={onLoginClick}
+              <Link
+                to="/login"
                 className="px-3 py-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
               >
                 log in
-              </button>
+              </Link>
 
-              <button 
-                onClick={onSignUpClick}
+              <Link
+                to="/signup"
                 className="px-3 py-1 rounded-md text-white hover:opacity-80 transition-opacity cursor-pointer"
               >
                 sign up
-              </button>
+              </Link>
             </>
           )}
         </div>

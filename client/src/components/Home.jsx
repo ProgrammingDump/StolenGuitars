@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useStore } from "@tanstack/react-store";
@@ -21,8 +21,10 @@ export const Home = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [selectedGuitar, setSelectedGuitar] = useState(null);
+  const [editingGuitar, setEditingGuitar] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   // Get current user from store
   const { user } = useStore(userStore, (s) => ({ user: s.user }));
@@ -37,12 +39,24 @@ export const Home = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [editBrand, setEditBrand] = useState("");
+  const [editModel, setEditModel] = useState("");
+  const [editSerialNumber, setEditSerialNumber] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [keptImages, setKeptImages] = useState([]);
+  const [editFiles, setEditFiles] = useState([]);
+  const [editPreviews, setEditPreviews] = useState([]);
 
   const loaderRef = useRef(null);
+  const loadingRef = useRef(false);
 
-  const fetchGuitars = async (pageNumber) => {
-    if (loading) return;
+  const fetchGuitars = useCallback(async (pageNumber) => {
+    if (loadingRef.current) return;
+
+    loadingRef.current = true;
     setLoading(true);
+
     try {
       const res = await axios.get(`http://localhost:5050/api/guitars?page=${pageNumber}&limit=6`);
       const { guitars: newGuitars, hasMore: moreAvailable } = res.data;
@@ -52,17 +66,23 @@ export const Home = () => {
     } catch (err) {
       console.error("Error loading guitars:", err);
     } finally {
+      loadingRef.current = false;
       setLoading(false);
     }
-  };
+  }, []);
 
   // Fetch initial guitars and when page changes
   useEffect(() => {
-    fetchGuitars(page);
-  }, [page]);
+    const timeout = window.setTimeout(() => {
+      fetchGuitars(page);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [fetchGuitars, page]);
 
   // Set up Intersection Observer for infinite scrolling
   useEffect(() => {
+    const loader = loaderRef.current;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loading) {
@@ -72,20 +92,24 @@ export const Home = () => {
       { threshold: 1.0 }
     );
 
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
+    if (loader) {
+      observer.observe(loader);
     }
 
     return () => {
-      if (loaderRef.current) {
-        observer.unobserve(loaderRef.current);
+      if (loader) {
+        observer.unobserve(loader);
       }
     };
   }, [hasMore, loading]);
 
   // Reset active image index when selected guitar changes
   useEffect(() => {
-    setActiveImageIndex(0);
+    const timeout = window.setTimeout(() => {
+      setActiveImageIndex(0);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
   }, [selectedGuitar]);
 
   // Helper to resolve Image URL (handles Cloudinary and local static fallback)
@@ -105,7 +129,7 @@ export const Home = () => {
 
     setDeleting(true);
     try {
-      const res = await axios.delete(
+      await axios.delete(
         `http://localhost:5050/api/guitars/${selectedGuitar._id}`,
         { withCredentials: true }
       );
@@ -148,6 +172,107 @@ export const Home = () => {
     URL.revokeObjectURL(previews[index]);
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const openEditModal = (guitar) => {
+    setSelectedGuitar(null);
+    setEditingGuitar(guitar);
+    setEditBrand(guitar.brand || "");
+    setEditModel(guitar.model || "");
+    setEditSerialNumber(guitar.serialNumber || "");
+    setEditLocation(guitar.location || "");
+    setEditDescription(guitar.description || "");
+    setKeptImages(guitar.images || []);
+    setEditFiles([]);
+    setEditPreviews([]);
+  };
+
+  const handleEditFileChange = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (keptImages.length + editFiles.length + files.length > 5) {
+      toast.error("Error: You can upload a maximum of 5 images.");
+      return;
+    }
+
+    const invalidFile = files.find((file) => file.size > 10 * 1024 * 1024);
+    if (invalidFile) {
+      toast.error("Error: Each file size must be less than 10MB.");
+      return;
+    }
+
+    setEditFiles((prev) => [...prev, ...files]);
+    setEditPreviews((prev) => [...prev, ...files.map((file) => URL.createObjectURL(file))]);
+  };
+
+  const removeEditFile = (index) => {
+    URL.revokeObjectURL(editPreviews[index]);
+    setEditFiles((prev) => prev.filter((_, i) => i !== index));
+    setEditPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeKeptImage = (index) => {
+    setKeptImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const closeEditModal = () => {
+    editPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setEditingGuitar(null);
+    setEditBrand("");
+    setEditModel("");
+    setEditSerialNumber("");
+    setEditLocation("");
+    setEditDescription("");
+    setKeptImages([]);
+    setEditFiles([]);
+    setEditPreviews([]);
+    setUpdating(false);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!editingGuitar) return;
+    if (keptImages.length + editFiles.length === 0) {
+      toast.error("Error: At least one image is required.");
+      return;
+    }
+
+    setUpdating(true);
+    try {
+      const formData = new FormData();
+      formData.append("brand", editBrand);
+      formData.append("model", editModel);
+      formData.append("serialNumber", editSerialNumber);
+      formData.append("location", editLocation);
+      formData.append("description", editDescription);
+      formData.append("keptImages", JSON.stringify(keptImages));
+
+      editFiles.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      const res = await axios.put(
+        `http://localhost:5050/api/guitars/${editingGuitar._id}`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      toast.success(res.data?.message || "Guitar updated successfully");
+      setGuitars((prev) =>
+        prev.map((guitar) => (guitar._id === res.data.guitar._id ? res.data.guitar : guitar))
+      );
+      setSelectedGuitar(res.data.guitar);
+      closeEditModal();
+    } catch (err) {
+      console.error("Error updating guitar:", err);
+      toast.error(err.response?.data?.message || "Failed to update guitar");
+    } finally {
+      setUpdating(false);
+    }
   };
 
   // Clean up previews to avoid memory leaks
@@ -444,6 +569,168 @@ export const Home = () => {
         </div>
       )}
 
+      {editingGuitar && (
+        <div
+          className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 overflow-y-auto"
+          onClick={closeEditModal}
+        >
+          <div
+            className="bg-zinc-950 border border-zinc-850 w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-2xl p-8 flex flex-col my-8 relative animate-in fade-in zoom-in-95 duration-205 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closeEditModal}
+              className="absolute top-4 right-4 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-zinc-800 transition-colors cursor-pointer"
+            >
+              <IoClose size={20} />
+            </button>
+
+            <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+              Edit Guitar Report
+            </h2>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Guitar Brand *</label>
+                <input
+                  type="text"
+                  required
+                  value={editBrand}
+                  onChange={(e) => setEditBrand(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Model *</label>
+                <input
+                  type="text"
+                  required
+                  value={editModel}
+                  onChange={(e) => setEditModel(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Serial Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={editSerialNumber}
+                  onChange={(e) => setEditSerialNumber(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Last Seen Location *</label>
+                <input
+                  type="text"
+                  required
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Description</label>
+                <textarea
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={3}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                  Existing Photos
+                </label>
+
+                {keptImages.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-2">
+                    {keptImages.map((image, index) => (
+                      <div key={`${image}-${index}`} className="relative aspect-square rounded-xl overflow-hidden group border border-zinc-800">
+                        <img src={getImageUrl(image)} alt="Existing preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeKeptImage(index)}
+                          className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white cursor-pointer"
+                        >
+                          <IoClose size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-zinc-500 text-sm">No existing images selected.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                  Add More Photos
+                </label>
+
+                <input
+                  type="file"
+                  id="edit-guitar-images"
+                  multiple
+                  accept="image/*"
+                  onChange={handleEditFileChange}
+                  className="hidden"
+                />
+
+                <label
+                  htmlFor="edit-guitar-images"
+                  className="w-full border border-dashed border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 rounded-2xl py-6 flex flex-col items-center justify-center cursor-pointer hover:bg-zinc-900 transition-all gap-1"
+                >
+                  <IoCloudUploadOutline size={32} className="text-zinc-500 animate-bounce" />
+                  <span className="text-sm font-semibold text-zinc-300">Choose Images</span>
+                  <span className="text-xs text-zinc-500">JPG, PNG, WEBP</span>
+                </label>
+
+                {editPreviews.length > 0 && (
+                  <div className="grid grid-cols-5 gap-2 mt-4">
+                    {editPreviews.map((preview, index) => (
+                      <div key={preview} className="relative aspect-square rounded-xl overflow-hidden group border border-zinc-800">
+                        <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => removeEditFile(index)}
+                          className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-white cursor-pointer"
+                        >
+                          <IoClose size={18} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="flex-1 py-3 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-white font-semibold rounded-xl transition-colors cursor-pointer text-center"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updating}
+                  className="flex-1 py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 disabled:bg-zinc-900 disabled:text-zinc-700 transition-colors cursor-pointer text-center flex items-center justify-center gap-2"
+                >
+                  {updating ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {selectedGuitar && (
         <div
           className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4 transition-all duration-300"
@@ -541,7 +828,7 @@ export const Home = () => {
                 {user && selectedGuitar.userId?._id === user._id && (
                   <>
                     <button
-                      onClick={() => console.log("Edit guitar")}
+                        onClick={() => openEditModal(selectedGuitar)}
                       className="px-6 py-2.5 bg-violet-900/50 hover:bg-violet-900 border border-violet-700 text-violet-200 font-medium rounded-full transition-colors cursor-pointer flex items-center gap-2"
                     >
                       <IoPencil size={16} /> Edit
@@ -572,5 +859,3 @@ export const Home = () => {
     </div>
   );
 };
-
-

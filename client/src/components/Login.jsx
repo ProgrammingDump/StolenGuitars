@@ -59,7 +59,7 @@ function Login() {
 
     return (
         <div className="w-max min-h-screen flex items-center mx-auto">
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit, onError)}>
                 <div className="flex flex-col gap-4">
 
                     <div className="input-window mb-2">
