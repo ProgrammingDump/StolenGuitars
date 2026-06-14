@@ -1,12 +1,29 @@
 import { Store } from '@tanstack/store'
 
+const STORAGE_KEY = 'stolen-guitars-user'
+
+const readStoredUser = () => {
+	try {
+		const value = window.localStorage.getItem(STORAGE_KEY)
+		return value ? JSON.parse(value) : null
+	} catch {
+		return null
+	}
+}
+
+const storedUser = typeof window !== 'undefined' ? readStoredUser() : null
+
 export const userStore = new Store({
-	user: null,
-	isLoggedIn: false,
+	user: storedUser,
+	isLoggedIn: !!storedUser,
 	loading: true,
 })
 
 export const setUser = (user) => {
+	window.localStorage.setItem(
+		STORAGE_KEY,
+		JSON.stringify(user),
+	)
 	userStore.setState({
 		user,
 		isLoggedIn: !!user,
@@ -15,6 +32,7 @@ export const setUser = (user) => {
 }
 
 export const clearUser = () => {
+	window.localStorage.removeItem(STORAGE_KEY)
 	userStore.setState({
 		user: null,
 		isLoggedIn: false,

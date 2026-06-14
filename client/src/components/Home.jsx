@@ -51,6 +51,15 @@ export const Home = () => {
   const loaderRef = useRef(null);
   const loadingRef = useRef(false);
 
+  const normalizeId = (value) => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "object") {
+      return value._id || value.id || "";
+    }
+    return String(value);
+  };
+
   const fetchGuitars = useCallback(async (pageNumber) => {
     if (loadingRef.current) return;
 
@@ -828,7 +837,7 @@ export const Home = () => {
                   Close View
                 </button>
 
-                {user && selectedGuitar.userId?._id === user._id && (
+                {user && normalizeId(selectedGuitar.userId) === normalizeId(user) && (
                   <>
                     <button
                         onClick={() => openEditModal(selectedGuitar)}
