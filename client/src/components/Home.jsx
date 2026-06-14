@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { useStore } from "@tanstack/react-store";
+import { userStore } from "../store/userStore";
 import {
   IoLocationOutline,
   IoClose,
   IoCloudUploadOutline,
   IoChevronBack,
   IoChevronForward,
-  IoBarcodeOutline
+  IoBarcodeOutline,
+  IoTrash,
+  IoPencil
 } from "react-icons/io5";
 
 
@@ -18,6 +22,10 @@ export const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [selectedGuitar, setSelectedGuitar] = useState(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  // Get current user from store
+  const { user } = useStore(userStore, (s) => ({ user: s.user }));
 
   // Upload Modal State
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -85,6 +93,32 @@ export const Home = () => {
     if (!imagePath) return "";
     if (imagePath.startsWith("http")) return imagePath; // Cloudinary URL
     return `http://localhost:5050${imagePath}`; // Local static upload path
+  };
+
+  // Delete guitar handler
+  const handleDeleteGuitar = async () => {
+    if (!selectedGuitar) return;
+    
+    if (!window.confirm("Are you sure you want to delete this guitar report?")) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await axios.delete(
+        `http://localhost:5050/api/guitars/${selectedGuitar._id}`,
+        { withCredentials: true }
+      );
+
+      toast.success("Guitar report deleted successfully");
+      setSelectedGuitar(null);
+      setGuitars((prev) => prev.filter((g) => g._id !== selectedGuitar._id));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete guitar");
+      console.error("Error deleting guitar:", err);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   // Form input file change handler with client-side validation
@@ -496,13 +530,40 @@ export const Home = () => {
                 </p>
               </div>
 
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex justify-between gap-3">
                 <button
                   onClick={() => setSelectedGuitar(null)}
-                  className="px-6 py-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-white font-medium rounded-full transition-colors cursor-pointer"
+                  className="flex-1 px-6 py-2.5 bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-white font-medium rounded-full transition-colors cursor-pointer text-center"
                 >
                   Close View
                 </button>
+
+                {user && selectedGuitar.userId?._id === user._id && (
+                  <>
+                    <button
+                      onClick={() => console.log("Edit guitar")}
+                      className="px-6 py-2.5 bg-violet-900/50 hover:bg-violet-900 border border-violet-700 text-violet-200 font-medium rounded-full transition-colors cursor-pointer flex items-center gap-2"
+                    >
+                      <IoPencil size={16} /> Edit
+                    </button>
+                    <button
+                      onClick={handleDeleteGuitar}
+                      disabled={deleting}
+                      className="px-6 py-2.5 bg-red-900/50 hover:bg-red-900 disabled:bg-red-900/30 border border-red-700 text-red-200 font-medium rounded-full transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {deleting ? (
+                        <>
+                          <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <IoTrash size={16} /> Delete
+                        </>
+                      )}
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
