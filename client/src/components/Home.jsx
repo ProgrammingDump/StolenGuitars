@@ -757,30 +757,33 @@ export const Home = () => {
                   />
 
                   {selectedGuitar.images.length > 1 && (
-                    <>
+                    <div className="absolute inset-0 z-20 pointer-events-none">
                       <button
+                        type="button"
                         onClick={() => setActiveImageIndex((prev) => (prev === 0 ? selectedGuitar.images.length - 1 : prev - 1))}
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-zinc-800 transition-colors cursor-pointer z-30"
                       >
                         <IoChevronBack size={20} />
                       </button>
                       <button
+                        type="button"
                         onClick={() => setActiveImageIndex((prev) => (prev === selectedGuitar.images.length - 1 ? 0 : prev + 1))}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-zinc-800 transition-colors cursor-pointer"
+                        className="pointer-events-auto absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full border border-zinc-800 transition-colors cursor-pointer z-30"
                       >
                         <IoChevronForward size={20} />
                       </button>
 
-                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-xs">
+                      <div className="pointer-events-auto absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-30 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-xs">
                         {selectedGuitar.images.map((_, idx) => (
                           <button
+                            type="button"
                             key={idx}
                             onClick={() => setActiveImageIndex(idx)}
                             className={`w-2 h-2 rounded-full transition-all ${activeImageIndex === idx ? "bg-white scale-125" : "bg-white/50"}`}
                           />
                         ))}
                       </div>
-                    </>
+                    </div>
                   )}
                 </>
               ) : (
@@ -788,7 +791,7 @@ export const Home = () => {
                   <span className="text-sm uppercase tracking-wider font-semibold">No Image Available</span>
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent pointer-events-none" />
             </div>
 
             <div className="p-8">
