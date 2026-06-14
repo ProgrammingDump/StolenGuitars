@@ -1,6 +1,11 @@
 const mongoose = require('mongoose')
 
 const guitarSchema = new mongoose.Schema({
+	userId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User',
+		required: true,
+	},
 	brand: {
 		type: String,
 		required: true,
