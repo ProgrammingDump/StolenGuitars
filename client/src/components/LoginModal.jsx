@@ -61,48 +61,44 @@ export function LoginModal({ isOpen, onClose }) {
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="Login" size="sm">
-            <form onSubmit={handleSubmit(onSubmit, onError)}>
-                <div className="flex flex-col gap-4">
-                    <div className="input-window mb-2">
-                        <div className="border-b mb-5 w-full">
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("email")}
-                            />
-                        </div>
-                        {errors.email && (
-                            <p className="text-red-500 p-0 m-0 text-xs">
-                                {errors.email.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="input-window mb-5">
-                        <div className="border-b mb-1 w-full">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                autoComplete="off"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("password")}
-                            />
-                        </div>
-                        {errors.password && (
-                            <p className="text-red-500 text-xs">
-                                {errors.password.message}
-                            </p>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="bg-violet-500/15 text-white p-2 rounded-md cursor-pointer hover:bg-violet-500/25 transition-colors"
-                    >
-                        Login
-                    </button>
+            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Email</label>
+                    <input
+                        type="email"
+                        placeholder="your@email.com"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("email")}
+                    />
+                    {errors.email && (
+                        <p className="text-red-500 text-xs mt-1.5">
+                            {errors.email.message}
+                        </p>
+                    )}
                 </div>
+
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Password</label>
+                    <input
+                        type="password"
+                        placeholder="Enter your password"
+                        autoComplete="off"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("password")}
+                    />
+                    {errors.password && (
+                        <p className="text-red-500 text-xs mt-1.5">
+                            {errors.password.message}
+                        </p>
+                    )}
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition-colors cursor-pointer text-center mt-6"
+                >
+                    Login
+                </button>
             </form>
         </Modal>
     );
