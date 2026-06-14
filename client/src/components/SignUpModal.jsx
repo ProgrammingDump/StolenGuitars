@@ -76,70 +76,65 @@ export function SignUpModal({ isOpen, onClose, onSwitchToLogin }) {
                     onSubmit,
                     (errors) => showValidationErrors(errors)
                 )}
+                className="space-y-4"
             >
-                <div className="flex flex-col gap-4">
-                    <div className="input-window">
-                        <div className="border-b mb-1 w-full">
-                            <input
-                                type="text"
-                                placeholder="Username"
-                                autoComplete="off"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("username")}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-window">
-                        <div className="border-b mb-1 w-full">
-                            <input
-                                type="email"
-                                placeholder="Email"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("email")}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-window">
-                        <div className="border-b mb-1 w-full">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                autoComplete="new-password"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("password")}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="input-window">
-                        <div className="border-b mb-1 w-full">
-                            <input
-                                type="password"
-                                placeholder="Confirm Password"
-                                autoComplete="new-password"
-                                className="focus:outline-none w-full bg-black text-white"
-                                {...register("confirmPassword")}
-                            />
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="bg-violet-500/15 text-white p-2 rounded-md hover:bg-violet-500/25 transition-colors"
-                    >
-                        Sign Up
-                    </button>
-
-                    <button
-                        type="button"
-                        onClick={onSwitchToLogin}
-                        className="text-white text-sm hover:opacity-80 transition-opacity"
-                    >
-                        Already have an account? Log in here
-                    </button>
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Username</label>
+                    <input
+                        type="text"
+                        placeholder="Choose a username"
+                        autoComplete="off"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("username")}
+                    />
                 </div>
+
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Email</label>
+                    <input
+                        type="email"
+                        placeholder="your@email.com"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("email")}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Password</label>
+                    <input
+                        type="password"
+                        placeholder="Create a password"
+                        autoComplete="new-password"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("password")}
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-zinc-400 text-xs font-semibold uppercase tracking-wider mb-2">Confirm Password</label>
+                    <input
+                        type="password"
+                        placeholder="Confirm your password"
+                        autoComplete="new-password"
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-violet-500 transition-colors"
+                        {...register("confirmPassword")}
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    className="w-full py-3 bg-white text-black font-semibold rounded-xl hover:bg-zinc-200 transition-colors cursor-pointer text-center mt-6"
+                >
+                    Sign Up
+                </button>
+
+                <button
+                    type="button"
+                    onClick={onSwitchToLogin}
+                    className="w-full text-white text-sm hover:opacity-80 transition-opacity py-2"
+                >
+                    Already have an account? Log in here
+                </button>
             </form>
         </Modal>
     );
