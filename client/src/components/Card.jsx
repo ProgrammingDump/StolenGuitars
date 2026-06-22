@@ -5,4 +5,4 @@ export const Card = ({ children, className = "" }) => {
     </div>
   );
 };
-///////////////////////////// Fix auth persistence, 'token not available', hover animations on cards
+/////////////////////////////  hover animations on cards + resize images within card modal (auto crops) + add favicon

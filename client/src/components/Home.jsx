@@ -342,15 +342,6 @@ export const Home = () => {
 
   return (
     <div className="min-h-screen bg-black text-white py-12 px-4 sm:px-6 lg:px-8 pb-24">
-      <div className="max-w-7xl mx-auto text-center mb-16">
-        <h1 className="text-4xl md:text-6xl py-2 font-extrabold tracking-tight bg-linear-to-r from-white via-zinc-400 to-zinc-600 bg-clip-text text-transparent">
-          Stolen Guitars Catalog
-        </h1>
-        <p className="mt-4 text-zinc-400 text-lg max-w-xl mx-auto font-light">
-          Help track down missing gear. View reported equipment below.
-        </p>
-      </div>
-
       <div className="max-w-7xl mx-auto">
         {guitars.length === 0 && !loading ? (
           <div className="flex flex-col items-center justify-center py-20 border border-dashed border-zinc-800 rounded-3xl bg-zinc-950/50">
@@ -384,12 +375,12 @@ export const Home = () => {
                 <div className="p-6 flex-1 flex flex-col justify-between">
                   <div>
                     <h2 className="text-white text-2xl font-bold font-sans tracking-tight truncate group-hover:text-violet-400 transition-colors">
-                      {guitar.brand}
+                      {guitar.model}
                     </h2>
 
                     <div className="flex flex-wrap gap-2 mt-3">
                       <span className="px-3 py-1 bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-full inline-flex items-center gap-1.5 font-medium">
-                        {guitar.model}
+                        {guitar.brand}
                       </span>
                       <span className="px-3 py-1 bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs rounded-full inline-flex items-center gap-1.5 font-medium">
                         <IoBarcodeOutline className="text-violet-400" /> SN: {guitar.serialNumber}
@@ -472,7 +463,7 @@ export const Home = () => {
                   required
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  placeholder="e.g. Ibanez RG652AHM Prestige Nebula Green Burst"
+                  placeholder="e.g. RG652AHM Prestige Nebula Green Burst"
                   className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-violet-500 transition-colors"
                 />
               </div>

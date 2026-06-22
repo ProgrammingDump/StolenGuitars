@@ -23,7 +23,7 @@ export const Header = () => {
   return (
     <div className="flex py-2 px-4 justify-between max-h-14 items-center bg-linear-to-b from-violet-500/60 via-violet-500/40 to-black">
       <div className="text-xl font-bold">
-        <Link to="/">stolen guitars</Link>
+        <Link to="/">ismyguitarstolen</Link>
       </div>
 
       <div className="flex items-center">
