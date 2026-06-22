@@ -20,11 +20,11 @@ export const Modal = ({ isOpen, onClose, title, children, size = "md" }) => {
         >
           <IoClose size={20} />
         </button>
-        
-        <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+
+        <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text">
           {title}
         </h2>
-        
+
         <div className="text-white">
           {children}
         </div>

@@ -131,7 +131,7 @@ export const Home = () => {
   // Delete guitar handler
   const handleDeleteGuitar = async () => {
     if (!selectedGuitar) return;
-    
+
     if (!window.confirm("Are you sure you want to delete this guitar report?")) {
       return;
     }
@@ -319,6 +319,7 @@ export const Home = () => {
       });
 
       const res = await axios.post("http://localhost:5050/api/guitars", formData, {
+        withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -363,9 +364,9 @@ export const Home = () => {
               <div
                 key={guitar._id}
                 onClick={() => setSelectedGuitar(guitar)}
-                className="group relative bg-zinc-950 border border-zinc-900 rounded-[2rem] overflow-hidden hover:border-zinc-800 hover:-translate-y-1 transition-all duration-300 shadow-2xl flex flex-col h-[420px] cursor-pointer"
+                className="group relative bg-zinc-950 border border-zinc-900 rounded-4xl overflow-hidden hover:border-zinc-800 hover:-translate-y-1 transition-all duration-300 shadow-2xl flex flex-col h-105 cursor-pointer"
               >
-                <div className="h-[200px] w-full relative overflow-hidden bg-zinc-900">
+                <div className="h-50 w-full relative overflow-hidden bg-zinc-900">
                   {guitar.images && guitar.images.length > 0 ? (
                     <img
                       src={getImageUrl(guitar.images[0])}
@@ -426,7 +427,7 @@ export const Home = () => {
 
       <button
         onClick={() => setIsUploadOpen(true)}
-        className="fixed bottom-6 left-6 z-40 bg-[var(--primary-color)] hover:opacity-90 text-white font-semibold px-6 py-4 rounded-full shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 duration-200 cursor-pointer text-sm md:text-base"
+        className="fixed bottom-6 left-6 z-40 bg-(--primary-color) hover:opacity-90 text-white font-semibold px-6 py-4 rounded-full shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 duration-200 cursor-pointer text-sm md:text-base"
       >
         <IoCloudUploadOutline size={22} />
         <span>Upload</span>
@@ -448,7 +449,7 @@ export const Home = () => {
               <IoClose size={20} />
             </button>
 
-            <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
               Report a Stolen Guitar
             </h2>
 
@@ -594,7 +595,7 @@ export const Home = () => {
               <IoClose size={20} />
             </button>
 
-            <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+            <h2 className="text-white text-2xl font-extrabold tracking-tight mb-6 bg-linear-to-r from-white to-zinc-400 bg-clip-text">
               Edit Guitar Report
             </h2>
 
@@ -796,11 +797,11 @@ export const Home = () => {
                   )}
                 </>
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-zinc-950 flex flex-col items-center justify-center text-zinc-600">
+                <div className="w-full h-full bg-linear-to-br from-zinc-900 to-zinc-950 flex flex-col items-center justify-center text-zinc-600">
                   <span className="text-sm uppercase tracking-wider font-semibold">No Image Available</span>
                 </div>
               )}
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent pointer-events-none" />
             </div>
 
             <div className="p-8">
@@ -840,7 +841,7 @@ export const Home = () => {
                 {user && normalizeId(selectedGuitar.userId) === normalizeId(user) && (
                   <>
                     <button
-                        onClick={() => openEditModal(selectedGuitar)}
+                      onClick={() => openEditModal(selectedGuitar)}
                       className="px-6 py-2.5 bg-violet-900/50 hover:bg-violet-900 border border-violet-700 text-violet-200 font-medium rounded-full transition-colors cursor-pointer flex items-center gap-2"
                     >
                       <IoPencil size={16} /> Edit
